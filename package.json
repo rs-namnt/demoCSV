@@ -9,6 +9,7 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@grapecity/wijmo.vue2.all": "^5.20221.842",
     "core-js": "^3.19.3",
     "encoding-japanese": "^2.0.0",
     "json2csv": "^5.0.7",
@@ -16,6 +17,7 @@
     "vue": "^2.6.14",
     "vue-server-renderer": "^2.6.14",
     "vue-template-compiler": "^2.6.14",
-    "webpack": "^4.46.0"
+    "webpack": "^4.46.0",
+    "xlsx": "^0.18.5"
   }
 }

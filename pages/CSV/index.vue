@@ -1,7 +1,60 @@
 <template>
-  <div class="app-container">
-    <button type="button" class="button-15" @click="$router.push({name: 'CSV'})">Go to CSV</button>
-    <button type="button" class="button-16" @click="$router.push({name: 'Excel'})">Go to Excel</button>
+  <div class="app-container" :v-loading="loading">
+    <h1>Page Drop CSV</h1>
+    <div>
+      <div class="box-drop">
+        <div class="drop-content" :class="loading ? 'disable-load' : '' ">
+          <div class="box__input" @dragover="dragover" @dragleave="dragleave" @drop="drop">
+            <svg class="box__icon" xmlns="http://www.w3.org/2000/svg" width="50" height="43" viewBox="0 0 50 43"><path d="M48.4 26.5c-.9 0-1.7.7-1.7 1.7v11.6h-43.3v-11.6c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v13.2c0 .9.7 1.7 1.7 1.7h46.7c.9 0 1.7-.7 1.7-1.7v-13.2c0-1-.7-1.7-1.7-1.7zm-24.5 6.1c.3.3.8.5 1.2.5.4 0 .9-.2 1.2-.5l10-11.6c.7-.7.7-1.7 0-2.4s-1.7-.7-2.4 0l-7.1 8.3v-25.3c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v25.3l-7.1-8.3c-.7-.7-1.7-.7-2.4 0s-.7 1.7 0 2.4l10 11.6z"></path></svg>
+            <input type="file" name="fields[assetsFieldHandle][]" id="assetsFieldHandle" 
+              class="w-px h-px opacity-0 overflow-hidden absolute drop-input" @change="onChange" ref="file" accept=".xlsx, .xls, .csv" />
+          
+            <label for="assetsFieldHandle" class="block cursor-pointer drop-label">
+              <div>
+                Drop files here or <span class="underline">click here</span> to upload CSV files
+              </div>
+            </label>
+            <ul class="mt-4" v-if="fileList.length" v-cloak>
+              <li class="item-update" v-for="(file, index) in fileList" :key="index">
+                {{file.name}}
+                <button class="button-4" type="button" @click="remove(fileList.indexOf(file))">remove</button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="wrap-button">
+        <button type="button" class="button-15" @click="saveAsExcel" v-if="fileList.length">export excel</button>
+        <button type="button" class="button-16" @click="convertToCsv" v-if="fileList.length">export csv</button>
+      </div>
+      <div v-if="data.length !== 0" class="table-scroll">
+        <table class="wrap-table" ref="tableCsv" id="mytable" >
+          <thead>
+          <tr>
+            <th v-for="(header, index) in header" :key="index">{{header}}</th>
+          </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(value, index) in data" :key="index">
+              <td v-for="(content, key) in value" :key="key">
+                <span class="max-content" v-if="key !== 'isEdit' && !value.isEdit">{{content}}</span>
+                <input v-if="key !== 'isEdit' && value.isEdit" type="text" v-model="value[key]"/>
+                <span v-if="key === 'isEdit'">
+                  <i class="icon-edit" @click="editRow(index)">Edit</i>
+                  <i class="icon-delete" @click="deleteRow(index)">Delete</i>
+                </span>       
+                <!-- <input v-model="value[key]" v-if="!isShow" >
+                <input v-model="picker">
+                <span v-if="!isShow" @change="changeData(content)">{Ơ}</span>
+                <p>picker : {{picker}}</p> -->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- <input type="text" class="form-control" id="picker" v-model="picker" /> 
+      <p>picker : {{picker}}</p> -->
+    </div>
   </div>
 </template>
 
@@ -9,7 +62,7 @@
 import { Parser } from "json2csv";
 import Encoding from 'encoding-japanese';
 export default {
-  name: 'Drop',
+  name: 'CSV',
   data(){
     return {
       result: null, 
